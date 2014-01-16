@@ -1,7 +1,9 @@
-var spawn = require('child_process').spawn
+var _ = require('lodash'),
+    spawn = require('child_process').spawn
 
-function buildArgs(options, defaults) {
-    var args = [];
+function buildArgs(opts) {
+    var args = [],
+        options = _.omit(opts, 'destination');
     for (name in options) {
       var value = options.hasOwnProperty(name) ? options[name] : defaults.hasOwnProperty(name) ? defaults[name] : null;
       if (value === true) {
@@ -10,7 +12,8 @@ function buildArgs(options, defaults) {
         args.push('--' + name + '=' + value);
       }
     }
-    args.push('-')
+
+    args.push((opts.destination ? opts.destination : '-'));
     return args;
 }
 
@@ -36,7 +39,7 @@ var defaults = module.exports.defaults = function(defaults) {
         throw "Unsupported format. Use 1 of pdf or png"
       }
 
-      var args = buildArgs(opts || {}, defaults);
+      var args = buildArgs(_.extend(defaults, opts || {}));
       return spawn(executable, [input || '-'].concat(args), env || defaultEnv);
     }
   }
